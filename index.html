@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Gladiator_RL · Prenotazioni (demo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#0c0b0d; --panel:#17141a; --panel-2:#1f1b22; --line:#2d282f; --line-2:#433b45;
+  --text:#f3f0ee; --dim:#a69ea2; --mute:#6f676b;
+  --red:#f32c2c; --red-2:#ff5a4f; --red-deep:#7d1010;
+  --silver:#cfd2d8; --ok:#3ccf7a; --warn:#f5b13d;
+  --f-display:"Poppins","Segoe UI",system-ui,sans-serif;
+  --f-body:"Barlow","Segoe UI",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:16px;line-height:1.5;min-height:100vh;position:relative}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(900px 500px at 50% 115%, rgba(243,44,44,.28), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--red-2);outline-offset:2px}
+a{color:var(--silver)}
+
+.hud{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px max(16px,env(safe-area-inset-left));background:rgba(12,11,13,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;text-align:left}
+.logo img{width:38px;height:38px;border-radius:50%;border:1px solid var(--line-2)}
+.logo b{display:block;font-family:var(--f-display);font-weight:700;font-size:16px;letter-spacing:.02em}
+.logo small{display:block;font-family:var(--f-display);font-weight:400;font-size:10px;letter-spacing:.28em;color:var(--dim);text-transform:uppercase}
+.switch{display:flex;border:1px solid var(--line-2);margin-left:auto}
+.switch button{background:none;border:0;padding:9px 16px;font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.switch button.on.p{background:var(--silver);color:#141215}
+.switch button.on.g{background:var(--red);color:#fff}
+.clock{display:flex;align-items:center;gap:8px;border:1px solid var(--line-2);padding:4px 6px 4px 12px}
+.clock .time{font-family:var(--f-display);font-weight:600;font-size:14px;letter-spacing:.06em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.clock .time small{display:block;font-weight:400;font-size:9px;letter-spacing:.24em;color:var(--red-2)}
+.chip{border:1px solid var(--line-2);background:var(--panel-2);font-family:var(--f-display);font-size:11px;font-weight:600;letter-spacing:.06em;padding:5px 9px}
+.chip:hover{border-color:var(--red-2);color:var(--red-2)}
+.reset{background:none;border:0;color:var(--mute);font-size:13px;text-decoration:underline;text-underline-offset:3px;padding:4px}
+.reset:hover{color:var(--red-2)}
+@media (max-width:760px){.switch{margin-left:0;order:3;width:100%}.switch button{flex:1;padding:9px 6px;font-size:12px}.clock{order:4}.reset{order:5}}
+
+main{max-width:1180px;margin:0 auto;padding:30px max(16px,env(safe-area-inset-left)) 90px}
+
+.eyebrow{font-family:var(--f-display);font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.1}
+h2.title{font-weight:700;font-size:28px;text-transform:uppercase;letter-spacing:.01em}
+h3{font-weight:600;font-size:18px}
+p{margin:0}
+.dim{color:var(--dim)}
+.panel{background:var(--panel);border:1px solid var(--line);padding:22px}
+.grid{display:grid;gap:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid transparent;background:var(--red);color:#fff;font-family:var(--f-display);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;padding:11px 20px;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+.btn:hover{background:var(--red-2)}
+.btn.ghost{background:transparent;border-color:var(--line-2);color:var(--text)}
+.btn.ghost:hover{border-color:var(--silver)}
+.btn.silver{background:var(--silver);color:#141215}
+.btn.silver:hover{background:#fff}
+.btn.ok{background:#1f9d57}
+.btn.ok:hover{background:#27b866}
+.btn.sm{font-size:12px;padding:8px 14px}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;font-family:var(--f-display);font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border:1px solid currentColor;white-space:nowrap}
+.pill.pending,.pill.proposed{color:var(--warn)}
+.pill.confirmed{color:var(--silver)}
+.pill.done,.pill.paid{color:var(--ok)}
+.pill.noshow,.pill.rejected,.pill.cancelled{color:var(--red-2)}
+.pill.expired,.pill.unpaid{color:var(--mute)}
+.note{border-left:3px solid var(--red);background:rgba(243,44,44,.06);padding:12px 16px;font-size:14.5px;color:var(--dim);display:flex;flex-direction:column;gap:2px}
+.note b{font-family:var(--f-display);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--red-2);font-weight:600}
+label.f{display:flex;flex-direction:column;gap:6px;font-family:var(--f-display);font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+.in{background:var(--bg);border:1px solid var(--line-2);padding:11px 12px;color:var(--text);font-family:var(--f-body);font-size:15px;letter-spacing:0;text-transform:none;width:100%}
+.in:focus{border-color:var(--silver);outline:none}
+textarea.in{resize:vertical;min-height:76px}
+.err{color:var(--red-2);font-family:var(--f-body);font-size:13px;letter-spacing:0;text-transform:none}
+.empty{padding:26px;text-align:center;color:var(--mute);border:1px dashed var(--line-2)}
+
+/* HOME */
+.present{display:flex;gap:14px;align-items:center;border:1px dashed var(--line-2);padding:12px 16px;font-size:14.5px;color:var(--dim);margin-bottom:34px}
+.present b{color:var(--text)}
+.present .tag{font-family:var(--f-display);font-size:10.5px;font-weight:600;letter-spacing:.2em;background:var(--silver);color:#141215;padding:4px 8px;white-space:nowrap}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:center;margin-bottom:40px}
+.hero img{width:170px;height:170px;border-radius:50%;box-shadow:0 0 0 1px var(--line-2),0 0 70px rgba(243,44,44,.35)}
+.hero h1{font-weight:800;font-size:clamp(36px,6vw,68px);text-transform:uppercase;letter-spacing:-.01em;line-height:.95}
+.hero h1 span{color:var(--red)}
+.hero .king{font-family:var(--f-display);font-weight:300;font-size:15px;letter-spacing:.4em;text-transform:uppercase;color:var(--silver);margin-top:12px}
+.hero p{margin-top:14px;max-width:52ch;color:var(--dim);font-size:17px}
+@media (max-width:640px){.hero{grid-template-columns:1fr;text-align:center;justify-items:center}.hero img{width:120px;height:120px}.present{flex-direction:column;align-items:flex-start}}
+.doors{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:720px){.doors{grid-template-columns:1fr}}
+.door{text-align:left;background:var(--panel);border:1px solid var(--line);padding:26px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s,transform .15s}
+.door:hover{transform:translateY(-2px)}
+.door.p:hover{border-color:var(--silver)}
+.door.g{border-color:rgba(243,44,44,.4);background:linear-gradient(160deg,rgba(243,44,44,.16),var(--panel) 60%)}
+.door.g:hover{border-color:var(--red)}
+.door h3{font-size:26px;font-weight:700;text-transform:uppercase}
+.door p{color:var(--dim)}
+.door .go{font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-top:8px}
+.door.g .go{color:var(--red-2)}
+.how{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:34px}
+@media (max-width:860px){.how{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.how{grid-template-columns:1fr}}
+.how div{border-top:2px solid var(--line-2);padding-top:12px;display:flex;flex-direction:column;gap:4px}
+.how div:nth-child(2),.how div:nth-child(4){border-color:var(--red)}
+.how .n{font-family:var(--f-display);font-weight:300;font-size:30px;color:var(--mute);line-height:1}
+.how h3{font-size:16px;text-transform:uppercase;letter-spacing:.04em}
+.how p{font-size:14.5px;color:var(--dim)}
+.foot{margin-top:46px;font-size:12px;color:var(--mute);text-align:center}
+
+/* PLAYER */
+.tabs{display:flex;gap:2px;margin-bottom:22px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:10px 16px;font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.tabs button.on{color:var(--text);border-color:var(--silver)}
+.tabs.g button.on{border-color:var(--red)}
+.tabs .count{font-size:10px;background:var(--red);color:#fff;padding:1px 6px;margin-left:6px}
+.book{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.bhead{display:flex;gap:16px;align-items:center}
+.bhead img{width:56px;height:56px;border-radius:50%;border:1px solid var(--line-2)}
+.bhead b{font-family:var(--f-display);font-weight:700;font-size:22px;display:block;line-height:1.2}
+.progress{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.progress div{border-top:3px solid var(--line-2);padding-top:8px;font-family:var(--f-display);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.progress div.on{border-color:var(--silver);color:var(--text)}
+.progress div.done{border-color:var(--red);color:var(--dim)}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:620px){.types{grid-template-columns:1fr}}
+.type{text-align:left;background:var(--bg);border:1px solid var(--line-2);padding:20px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s}
+.type:hover{border-color:var(--silver)}
+.type.on{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
+.type h3{font-size:22px;text-transform:uppercase}
+.type .price{font-family:var(--f-display);font-weight:600;font-size:15px;color:var(--silver)}
+.type p{font-size:14.5px;color:var(--dim)}
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
+.day{flex:0 0 auto;width:70px;background:var(--bg);border:1px solid var(--line-2);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.day .wd{font-family:var(--f-display);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.day .dn{font-family:var(--f-display);font-weight:700;font-size:24px;line-height:1.1}
+.day .fr{font-size:11px;color:var(--ok)}
+.day.none{opacity:.4}
+.day.none .fr{color:var(--mute)}
+.day.on{border-color:var(--red);background:rgba(243,44,44,.14)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.slot{background:var(--bg);border:1px solid var(--line-2);padding:12px 6px;font-family:var(--f-display);font-weight:600;font-size:17px;text-align:center}
+.slot:hover{border-color:var(--silver)}
+.slot.on{background:var(--red);border-color:var(--red);color:#fff}
+.part{font-family:var(--f-display);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin:4px 0 -4px}
+.form2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:620px){.form2{grid-template-columns:1fr}}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+.opt{background:var(--bg);border:1px solid var(--line-2);padding:8px 14px;font-family:var(--f-body);font-weight:600;font-size:14px;color:var(--text)}
+.opt.on{border-color:var(--silver);background:var(--silver);color:#141215}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--dim)}
+.check input{margin-top:3px;accent-color:var(--red);width:17px;height:17px}
+.recap{display:flex;gap:18px;flex-wrap:wrap;border:1px solid var(--line-2);background:var(--bg);padding:12px 16px;font-size:14.5px}
+.recap span{color:var(--dim)}
+.recap b{color:var(--text)}
+.success{text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;padding:44px 20px}
+.success h2{font-weight:800;font-size:clamp(34px,6vw,60px);text-transform:uppercase}
+.success h2 span{color:var(--red)}
+
+/* INBOX */
+.inbox{display:grid;grid-template-columns:320px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.inbox{grid-template-columns:minmax(0,1fr)}}
+.mlist{display:flex;flex-direction:column;gap:6px;max-height:72vh;overflow:auto}
+.mitem{text-align:left;background:var(--panel);border:1px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.mitem.on{border-color:var(--silver)}
+.mitem.unread{box-shadow:inset 3px 0 0 var(--red)}
+.mitem .to{font-size:12px;color:var(--dim)}
+.mitem .sj{font-weight:600;font-size:15px}
+.mitem .at{font-size:12px;color:var(--mute)}
+.mail{background:#efedee;color:#18151a;overflow:hidden}
+.mail .mh{background:#dedadc;padding:10px 18px;font-size:13px;color:#5a5257;display:flex;flex-direction:column}
+.mail .mh b{color:#18151a}
+.mail .mb{max-width:600px;margin:0 auto;background:#fff;padding-bottom:24px}
+.mail .brand{background:#0c0b0d;padding:16px 22px;display:flex;align-items:center;gap:12px;color:#fff;border-bottom:3px solid #f32c2c}
+.mail .brand img{width:36px;height:36px;border-radius:50%}
+.mail .brand b{font-family:var(--f-display);font-weight:700;font-size:17px;display:block}
+.mail .brand small{font-family:var(--f-display);font-size:9px;letter-spacing:.3em;color:#b9b2b5}
+.mail .ct{padding:22px 24px 0;display:flex;flex-direction:column;gap:14px;font-size:15px;line-height:1.55}
+.mail h4{font-family:var(--f-display);font-weight:700;font-size:22px;margin:0}
+.mail .det{background:#f4f2f3;border-left:3px solid #18151a;padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px}
+.mail .det span:nth-child(odd){color:#7a7176}
+.mail .quote{border-left:3px solid #f32c2c;background:#fdeeee;padding:10px 14px;font-style:italic}
+.mail .mbtns{display:flex;gap:8px;flex-wrap:wrap}
+.mail .mbtns button{border:0;background:#f32c2c;color:#fff;font-weight:600;padding:10px 16px;font-size:14px}
+.mail .mbtns button.sec{background:#e8e4e6;color:#18151a}
+.mail .fine{font-size:12px;color:#8b8287;border-top:1px solid #e8e4e6;padding-top:12px}
+.strike{text-decoration:line-through;color:#8b8287}
+
+/* STREAMER */
+.login{max-width:440px;margin:40px auto;text-align:center;display:flex;flex-direction:column;gap:16px;align-items:center}
+.login img{width:90px;height:90px;border-radius:50%;box-shadow:0 0 50px rgba(243,44,44,.35)}
+.gbtn{display:inline-flex;align-items:center;gap:12px;background:#fff;color:#1f2533;border:0;padding:12px 22px;font-weight:600;font-size:15px;border-radius:3px}
+.gbtn .g{width:20px;height:20px;border-radius:50%;background:conic-gradient(#4285f4 0 25%,#34a853 0 50%,#fbbc05 0 75%,#ea4335 0);display:grid;place-items:center}
+.gbtn .g::after{content:"";width:10px;height:10px;background:#fff;border-radius:50%}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:620px){.kpis{grid-template-columns:1fr}}
+.kpi{background:var(--panel);border:1px solid var(--line);padding:16px 18px;display:flex;flex-direction:column;gap:2px}
+.kpi .v{font-family:var(--f-display);font-weight:700;font-size:32px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .l{font-family:var(--f-display);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.kpi.r .v{color:var(--red-2)}
+.banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--red);background:rgba(243,44,44,.08);padding:12px 16px}
+.filters{display:flex;gap:4px;flex-wrap:wrap}
+.filters button{background:none;border:1px solid var(--line-2);color:var(--dim);font-family:var(--f-display);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:7px 12px}
+.filters button.on{border-color:var(--red);color:#fff;background:rgba(243,44,44,.14)}
+.reqs{display:flex;flex-direction:column;gap:10px}
+.req{background:var(--panel);border:1px solid var(--line);display:grid;grid-template-columns:110px minmax(0,1fr) auto}
+.req.pending{border-color:rgba(245,177,61,.45)}
+.req .when{padding:14px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:var(--bg)}
+.req .when .d{font-family:var(--f-display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.req .when .t{font-family:var(--f-display);font-weight:700;font-size:24px}
+.req .body{padding:14px 16px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.req .top{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.req .nick{font-family:var(--f-display);font-weight:700;font-size:19px}
+.req .meta{display:flex;gap:14px;flex-wrap:wrap;font-size:13.5px;color:var(--dim)}
+.req .meta span{overflow-wrap:anywhere}
+.req .goal{font-size:14.5px;font-style:italic}
+.req .acts{padding:14px;display:flex;flex-direction:column;gap:8px;justify-content:center;border-left:1px solid var(--line);min-width:170px}
+.req .expire{font-size:12.5px;color:var(--warn);text-align:center}
+@media (max-width:760px){.req{grid-template-columns:minmax(0,1fr)}.req .when{flex-direction:row;gap:12px;border-right:0;border-bottom:1px solid var(--line)}.req .acts{border-left:0;border-top:1px solid var(--line);flex-direction:row;flex-wrap:wrap}.req .acts .btn{flex:1 1 auto}}
+.cal{overflow-x:auto;border:1px solid var(--line);background:var(--bg)}
+.cal-in{min-width:800px;display:grid;grid-template-columns:52px repeat(7,1fr)}
+.cal-h{background:var(--panel);border-bottom:1px solid var(--line);padding:8px 6px;text-align:center;font-family:var(--f-display);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.cal-h.today{color:var(--red-2)}
+.cal-h b{display:block;font-size:20px;color:var(--text);letter-spacing:0}
+.cal-times div{height:48px;font-size:11px;color:var(--mute);text-align:right;padding-right:6px;transform:translateY(-7px)}
+.cal-col{position:relative;border-left:1px solid var(--line);background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 48px}
+.cal-band{position:absolute;left:0;right:0;background:rgba(207,210,216,.05);border-left:2px solid rgba(207,210,216,.35)}
+.cal-closed{position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0 8px,transparent 8px 16px)}
+.ev{position:absolute;left:5px;right:5px;padding:4px 6px;font-size:11.5px;line-height:1.25;overflow:hidden;border-left:3px solid;z-index:1}
+.ev b,.ev span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev b{font-size:12px}
+.ev.g{background:#2a252c;border-color:#8c838a;color:#ddd6da}
+.ev.c{background:rgba(243,44,44,.28);border-color:var(--red);color:#fff}
+.ev.p{background:rgba(245,177,61,.1);border:1px dashed var(--warn);border-left:3px dashed var(--warn);color:var(--warn)}
+.nowline{position:absolute;left:0;right:0;height:2px;background:var(--red);z-index:2;box-shadow:0 0 8px var(--red)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--dim)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:10px;display:inline-block;border-left:3px solid}
+.avday{display:grid;grid-template-columns:120px minmax(0,1fr);gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.avday:last-child{border-bottom:0}
+.avday .dname{font-family:var(--f-display);font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+.avday .dname small{display:block;font-family:var(--f-body);font-size:12.5px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--dim)}
+.bands{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.band{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line-2);padding:4px 6px 4px 8px}
+.band select{background:transparent;border:0;color:var(--text);font-family:var(--f-display);font-weight:600;font-size:14px;padding:2px}
+.band select option{background:var(--panel)}
+.band .x{background:none;border:0;color:var(--mute);font-size:17px;line-height:1;padding:2px 4px}
+.band .x:hover{color:var(--red-2)}
+.addband{background:none;border:1px dashed var(--line-2);color:var(--dim);font-size:13px;padding:7px 10px}
+.addband:hover{border-color:var(--silver);color:var(--text)}
+@media (max-width:560px){.avday{grid-template-columns:minmax(0,1fr)}}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+table.t th{text-align:left;font-family:var(--f-display);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:500;padding:10px 12px;border-bottom:1px solid var(--line-2)}
+table.t td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.t td.num{font-variant-numeric:tabular-nums;font-weight:600}
+.tw{overflow-x:auto}
+.setrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.setrow:last-child{border-bottom:0}
+.setrow p{font-size:13.5px;color:var(--dim)}
+@media (max-width:520px){.setrow{grid-template-columns:minmax(0,1fr)}}
+
+.overlay{position:fixed;inset:0;z-index:60;background:rgba(6,5,7,.78);backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px}
+.modal{width:min(540px,100%);max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.reasons{display:flex;flex-direction:column;gap:6px}
+.reasons label{display:flex;gap:10px;align-items:center;background:var(--bg);border:1px solid var(--line-2);padding:10px 12px;font-size:14.5px;cursor:pointer}
+.reasons label:has(input:checked){border-color:var(--red);background:rgba(243,44,44,.08)}
+.reasons input{accent-color:var(--red)}
+.consent{background:#fff;color:#1f2533;padding:24px;border-radius:8px;display:flex;flex-direction:column;gap:12px;max-width:440px}
+.consent h4{margin:0;font-size:19px}
+.consent ul{margin:0;padding-left:18px;font-size:14px}
+.consent .cbtns{display:flex;justify-content:flex-end;gap:8px}
+.consent .cbtns button{border:0;padding:9px 18px;border-radius:4px;font-weight:600}
+.strip{position:fixed;left:0;right:0;bottom:0;z-index:80;background:var(--silver);color:#141215;text-align:center;font-family:var(--f-display);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:6px max(16px,env(safe-area-inset-left)) calc(6px + env(safe-area-inset-bottom))}
+#toasts{position:fixed;right:16px;bottom:44px;z-index:70;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+.toast{background:var(--panel-2);border:1px solid var(--line-2);border-left:3px solid var(--red);padding:10px 14px;max-width:360px;font-size:14px;animation:tin .25s ease-out;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+@keyframes tin{from{transform:translateX(30px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.toast{animation:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toasts" aria-live="polite"></div>
+<div class="strip">Demo non ufficiale · dati inventati · non è il sito di Gladiator_RL</div>
+<script>
+const AVATAR = 'data:image/jpeg;base64,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';
+const H = 36e5;
+const VERSION = 4;
+const STORE = 'gladiator-demo';
+const PRICE = 25;
+const TYPES = {
+  coaching:{name:'Coaching', desc:'Sessione privata: Gladiator guarda come giochi e ti corregge rotazioni, posizionamento e meccaniche.'},
+  boosting:{name:'Boosting', desc:'Giochi in party con Gladiator nella tua playlist per salire di rank, ognuno con il proprio account.'}
+};
+const RANK_OPTS = ['Bronze','Silver','Gold','Platinum','Diamond','Champion','Grand Champion'].flatMap(n => ['I','II','III'].map(d => n + ' ' + d)).concat('Supersonic Legend');
+const PLAYLISTS = ['1v1','2v2','3v3'];
+const WD = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+const REASONS = ['Lo slot non è più disponibile, scegline un altro','Per il boosting accetto richieste da Diamond III in su','Quel giorno ho un torneo, scusami'];
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (ms, o) => new Date(ms).toLocaleString('it-IT', o);
+const fTime = ms => fmt(ms, {hour:'2-digit', minute:'2-digit'});
+const fDay = ms => fmt(ms, {weekday:'short', day:'numeric', month:'short'});
+const fFull = ms => fmt(ms, {weekday:'long', day:'numeric', month:'long'}) + ', ' + fTime(ms);
+const fClock = ms => fmt(ms, {weekday:'short', day:'numeric', month:'short'}).replace(/\./g, '') + ' · ' + fTime(ms);
+const eur = n => n.toLocaleString('it-IT', {style:'currency', currency:'EUR', maximumFractionDigits:0});
+const sod = ms => { const d = new Date(ms); d.setHours(0,0,0,0); return d.getTime(); };
+const addDays = (ms, n) => { const d = new Date(ms); d.setDate(d.getDate() + n); return d.getTime(); };
+const at = (day, h) => { const d = new Date(day); d.setHours(h,0,0,0); return d.getTime(); };
+const ymd = ms => { const d = new Date(ms); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+function rel(ms){
+  const d = ms - S.now, a = Math.abs(d);
+  const t = a < H ? Math.max(1, Math.round(a/6e4)) + ' min' : a < 48*H ? (Math.round(a/H) === 1 ? '1 ora' : Math.round(a/H) + ' ore') : Math.round(a/(24*H)) + ' giorni';
+  return d >= 0 ? 'tra ' + t : t + ' fa';
+}
+const note = html => `<div class="note"><b>Per Gladiator</b><span>${html}</span></div>`;
+
+let S;
+const freshPlayer = () => ({step:1, type:null, day:null, slot:null, nick:'', email:'', discord:'', rank:'', playlist:'', goal:'', privacy:false, errors:{}});
+
+function seed(){
+  const b = new Date(); b.setMinutes(0,0,0); b.setHours(10);
+  const now = b.getTime();
+  const wk = () => [[11,13],[15,18]];
+  S = {
+    v:VERSION, now, view:'home', player:freshPlayer(), lastBookingId:null, manageId:null, openEmailId:null,
+    admin:{logged:false, tab:'richieste', filter:'pending', week:0},
+    settings:{notice:12, horizon:30, ttl:24, cancel:24, gconnected:true},
+    availability:{0:[], 1:wk(), 2:wk(), 3:wk(), 4:wk(), 5:wk(), 6:[[10,13]]},
+    exceptions:[], gcal:[], bookings:[], emails:[], seq:1040, modal:null
+  };
+  const today = sod(now);
+  let med = false;
+  for (let i = -10; i < 40; i++){
+    const day = addDays(today, i), wd = new Date(day).getDay();
+    if (wd === 1 || wd === 3 || wd === 5) S.gcal.push({title:'Live su Twitch', start:at(day,17), end:at(day,21)});
+    if (wd === 2) S.gcal.push({title:'Scrim con il team', start:at(day,11), end:at(day,12)});
+    if (wd === 6) S.gcal.push({title:'Torneo 2v2', start:at(day,11), end:at(day,13)});
+    if (wd === 4 && i > 0 && !med){ S.gcal.push({title:'Visita medica', start:at(day,15), end:at(day,16)}); med = true; }
+  }
+  for (let i = 8; i < 20; i++){ const day = addDays(today, i); if (new Date(day).getDay() === 5){ S.exceptions.push({date:ymd(day), note:'Trasferta LAN'}); break; } }
+
+  const slotAt = (from, h) => { for (let i = from; i < from + 14; i++){ const day = addDays(today, i), wd = new Date(day).getDay(); if (wd < 1 || wd > 5) continue; const st = at(day, h); if (inBand(st) && !gcalAt(st) && !activeAt(st)) return st; } };
+  const past = (n, h) => { for (let i = n; i < n + 7; i++){ const d = addDays(today, -i), wd = new Date(d).getDay(); if (wd >= 1 && wd <= 5) return at(d, h); } };
+  const mk = o => { const id = 'b' + (++S.seq); const bk = Object.assign({id, code:'GLD-' + S.seq, status:'pending', paid:false, discord:'', goal:'', gcalSynced:false, reminderSent:false, reason:'', originalStart:null}, o); bk.expiresAt = expiryFor(bk.createdAt, bk.start); S.bookings.push(bk); return bk; };
+
+  const sara = mk({nick:'SpeedFlip_Sara', email:'sara.speedflip@example.com', discord:'sara.sf', type:'coaching', rank:'Diamond III', playlist:'2v2', goal:'Essere più costante: vinco tre partite e poi ne perdo cinque.', start:slotAt(1,15), createdAt:now-50*H, status:'confirmed', gcalSynced:true, paid:true});
+  const fede = mk({nick:'FlipReset_Fede', email:'fede.flip@example.com', discord:'fede.flip', type:'coaching', rank:'Diamond II', playlist:'2v2', goal:'Sistemare le rotazioni e usare i flip reset in partita, non solo in free play.', start:slotAt(1,16), createdAt:now-3*H});
+  mk({nick:'AerialMarty', email:'marty.air@example.com', type:'boosting', rank:'Champion I', playlist:'2v2', goal:'Arrivare a Grand Champion prima della fine della stagione.', start:slotAt(2,12), createdAt:now-20*H});
+  mk({nick:'KickoffKing_07', email:'kickoff.king07@example.com', discord:'kk07', type:'coaching', rank:'Platinum III', playlist:'3v3', goal:'Perdo quasi tutti i kickoff e in difesa vado nel panico.', start:slotAt(3,11), createdAt:now-23*H});
+  mk({nick:'CeilingShot_Luca', email:'luca.ceiling@example.com', discord:'lucacs', type:'coaching', rank:'Grand Champion I', playlist:'1v1', goal:'Preparare un torneo 1v1.', start:slotAt(4,16), createdAt:now-40*H, status:'confirmed', gcalSynced:true});
+  mk({nick:'DemoMachine_Gio', email:'gio.demo@example.com', type:'boosting', rank:'Champion III', playlist:'3v3', start:past(3,16), createdAt:now-6*24*H, status:'confirmed', gcalSynced:true, paid:true});
+  mk({nick:'Wavedash_Ale', email:'ale.wavedash@example.com', type:'coaching', rank:'Gold II', playlist:'2v2', start:past(5,15), createdAt:now-8*24*H, status:'noshow', gcalSynced:true});
+  mk({nick:'ResetGod_Nico', email:'nico.reset@example.com', type:'boosting', rank:'Diamond I', playlist:'2v2', start:slotAt(5,15), createdAt:now-30*H, status:'rejected', reason:REASONS[1]});
+
+  addEmail('accepted', sara, now-49*H);
+  addEmail('received', fede, now-3*H);
+  S.emails.forEach(e => e.read = true);
+}
+
+const expiryFor = (created, start) => Math.min(created + S.settings.ttl*H, start - 2*H);
+const bandsFor = day => S.exceptions.some(e => e.date === ymd(day)) ? [] : (S.availability[new Date(day).getDay()] || []);
+const inBand = st => { const h = new Date(st).getHours(); return bandsFor(sod(st)).some(([s,e]) => h >= s && h + 1 <= e); };
+const gcalAt = st => S.gcal.find(g => g.start < st + H && g.end > st);
+const ACTIVE = ['pending','proposed','confirmed'];
+const activeAt = (st, except) => S.bookings.find(b => b.id !== except && ACTIVE.includes(b.status) && b.start === st);
+const isFree = (st, except) => st >= S.now + S.settings.notice*H && st <= S.now + S.settings.horizon*24*H && inBand(st) && !(S.settings.gconnected && gcalAt(st)) && !activeAt(st, except);
+function freeSlots(day, except){
+  const hours = new Set(); bandsFor(day).forEach(([s,e]) => { for (let h = s; h + 1 <= e; h++) hours.add(h); });
+  return [...hours].sort((a,b) => a-b).map(h => at(day, h)).filter(st => isFree(st, except));
+}
+function nextFree(limit, except){ const out = []; for (let i = 0; i < 30 && out.length < limit; i++) freeSlots(addDays(sod(S.now), i), except).forEach(s => { if (out.length < limit) out.push(s); }); return out; }
+const byId = id => S.bookings.find(b => b.id === id);
+const isPast = b => b.start + H <= S.now;
+const shown = b => b.status === 'confirmed' && isPast(b) ? 'done' : b.status;
+const SL = {pending:'Da decidere', proposed:'Orario proposto', confirmed:'Confermata', done:'Svolta', noshow:'Non presentato', rejected:'Rifiutata', expired:'Scaduta', cancelled_player:'Annullata dal giocatore', cancelled_streamer:'Annullata da te'};
+const pill = s => `<span class="pill ${s.startsWith('cancelled') ? 'cancelled' : s}">${SL[s]}</span>`;
+
+function addEmail(kind, bk, atMs){
+  const subj = {received:'Richiesta ricevuta · ' + fDay(bk.start), accepted:'Sessione confermata · ' + fDay(bk.start) + ' alle ' + fTime(bk.start), rejected:'Richiesta non accettata', proposed:'Gladiator ti propone un altro orario', expired:'Richiesta scaduta', reminder:'Domani si gioca · ' + fTime(bk.start), cancelled_streamer:'Sessione annullata', cancelled_player:'Hai annullato la sessione', declined:'Hai rifiutato l\'orario proposto'}[kind];
+  S.emails.unshift({id:'e' + Date.now() + Math.random().toString(36).slice(2,6), kind, bookingId:bk.id, to:bk.email, nick:bk.nick, subject:subj, at:atMs ?? S.now, read:false, snap:{start:bk.start, originalStart:bk.originalStart, reason:bk.reason, expiresAt:bk.expiresAt}});
+}
+
+function save(){ try { localStorage.setItem(STORE, JSON.stringify(S)); } catch(e){} }
+function load(){ try { const s = JSON.parse(localStorage.getItem(STORE)); if (s && s.v === VERSION){ S = s; S.modal = null; return; } } catch(e){} seed(); }
+function toast(html){ const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = html; document.getElementById('toasts').appendChild(t); setTimeout(() => t.remove(), 4200); }
+
+function advance(ms){
+  const target = S.now + ms; let exp = 0, rem = 0;
+  for (let g = 0; g < 500; g++){
+    let next = target;
+    S.bookings.forEach(b => {
+      if (['pending','proposed'].includes(b.status) && b.expiresAt > S.now && b.expiresAt <= next) next = b.expiresAt;
+      const r = b.start - 24*H;
+      if (b.status === 'confirmed' && !b.reminderSent && r > S.now && r <= next) next = r;
+    });
+    S.now = next;
+    S.bookings.forEach(b => {
+      if (['pending','proposed'].includes(b.status) && b.expiresAt <= S.now){ b.status = 'expired'; addEmail('expired', b); exp++; }
+      if (b.status === 'confirmed' && !b.reminderSent && b.start - 24*H <= S.now && b.start > S.now){ b.reminderSent = true; addEmail('reminder', b); rem++; }
+    });
+    if (S.now >= target) break;
+  }
+  const bits = [];
+  if (exp) bits.push(exp === 1 ? '1 richiesta scaduta, giocatore avvisato' : exp + ' richieste scadute, giocatori avvisati');
+  if (rem) bits.push(rem === 1 ? '1 promemoria inviato' : rem + ' promemoria inviati');
+  toast('Ora sono le <b>' + fClock(S.now) + '</b>' + (bits.length ? '<br>' + bits.join(' · ') : ''));
+}
+
+function render(keepScroll){
+  const y = window.scrollY;
+  document.getElementById('app').innerHTML = hud() + '<main>' + view() + '</main>' + modal();
+  window.scrollTo(0, keepScroll ? y : 0);
+  save();
+}
+const keep = () => render(true);
+
+function hud(){
+  const pv = ['player','inbox','manage'].includes(S.view), gv = S.view === 'streamer';
+  return `<header class="hud">
+    <button class="logo" data-action="go" data-to="home"><img src="${AVATAR}" alt=""><span><b>Gladiator_RL</b><small>Prenotazioni · demo</small></span></button>
+    <div class="switch" role="group" aria-label="Cambia vista"><button class="p ${pv?'on':''}" data-action="go" data-to="player">Vista giocatore</button><button class="g ${gv?'on':''}" data-action="go" data-to="streamer">Vista Gladiator</button></div>
+    <div class="clock" title="Orologio simulato"><span class="time"><small>ORA SIMULATA</small>${fClock(S.now)}</span><button class="chip" data-action="tick" data-h="1">+1 ora</button><button class="chip" data-action="tick" data-h="24">+1 giorno</button></div>
+    <button class="reset" data-action="reset">Ricomincia</button>
+  </header>`;
+}
+
+function view(){
+  if (S.view === 'player') return vPlayer();
+  if (S.view === 'inbox') return vInbox();
+  if (S.view === 'manage') return vManage();
+  if (S.view === 'streamer') return S.admin.logged ? vAdmin() : vLogin();
+  return vHome();
+}
+
+function vHome(){
+  return `
+  <div class="present"><span class="tag">PRESENTAZIONE</span><span>Questa pagina serve solo a presentarti il progetto. <b>I giocatori non la vedranno mai:</b> arriveranno direttamente alla pagina di prenotazione.</span></div>
+  <section class="hero">
+    <img src="${AVATAR}" alt="Logo di Gladiator_RL">
+    <div><h1>Prenotazioni<br><span>Gladiator_RL</span></h1><div class="king">King di Benevento</div>
+    <p>Un sito tuo dove i giocatori prenotano coaching e boosting in un minuto, senza registrarsi. Tu accetti dal pannello e la sessione finisce sul tuo Google Calendar.</p></div>
+  </section>
+  <section class="doors">
+    <button class="door p" data-action="go" data-to="player"><span class="eyebrow">Demo 1</span><h3>Cosa vede il giocatore</h3><p>Sceglie la sessione, un orario libero e lascia i suoi contatti.</p><span class="go">Prova a prenotare →</span></button>
+    <button class="door g" data-action="go" data-to="streamer"><span class="eyebrow">Demo 2</span><h3>Cosa vedi tu</h3><p>Accetti o rifiuti le richieste, decidi quando sei disponibile, ritrovi tutto in calendario.</p><span class="go">Apri il tuo pannello →</span></button>
+  </section>
+  <section class="how">
+    <div><span class="n">1</span><h3>Il giocatore prenota</h3><p>Sceglie coaching o boosting e un orario libero da un'ora.</p></div>
+    <div><span class="n">2</span><h3>Tu decidi</h3><p>Accetti, rifiuti con un motivo o proponi un altro orario.</p></div>
+    <div><span class="n">3</span><h3>Partono le email</h3><p>Il giocatore riceve conferma o motivo del rifiuto, e un promemoria il giorno prima.</p></div>
+    <div><span class="n">4</span><h3>Tutto in calendario</h3><p>Le sessioni accettate compaiono da sole sul tuo Google Calendar.</p></div>
+  </section>
+  <p class="foot">Demo con dati inventati: nessuna email parte davvero e nessun calendario viene toccato. Usa «+1 ora» e «+1 giorno» in alto per far passare il tempo.</p>`;
+}
+
+function playerTabs(){
+  const unread = S.emails.filter(e => !e.read).length;
+  return `<nav class="tabs"><button class="${S.view==='player'?'on':''}" data-action="go" data-to="player">Prenota</button><button class="${S.view!=='player'?'on':''}" data-action="go" data-to="inbox">Email del giocatore${unread?`<span class="count">${unread}</span>`:''}</button></nav>`;
+}
+
+function vPlayer(){
+  const P = S.player;
+  const head = `<div class="bhead"><img src="${AVATAR}" alt=""><div><b>Prenota una sessione con Gladiator</b><span class="dim">Coaching e boosting su Rocket League · ${eur(PRICE)} l'ora</span></div></div>`;
+  if (P.step === 4){
+    const bk = byId(S.lastBookingId);
+    return playerTabs() + `<div class="book"><div class="panel success">
+      <h2>Richiesta <span>inviata</span></h2>
+      <p style="max-width:50ch">Hai chiesto <b>${TYPES[bk.type].name}</b> per <b>${fFull(bk.start)}</b>. Lo slot è bloccato per te: ti scriviamo appena Gladiator risponde.</p>
+      <div class="row" style="justify-content:center"><button class="btn silver" data-action="openLastEmail">Vedi l'email ricevuta</button><button class="btn" data-action="goAdminPending">Rispondi come Gladiator →</button></div>
+      <button class="btn ghost sm" data-action="newBooking">Nuova prenotazione</button>
+    </div>${note('Adesso ti arriva una notifica e la richiesta ti aspetta nel pannello. Hai 24 ore per rispondere, poi scade da sola e il giocatore viene avvisato.')}</div>`;
+  }
+  const prog = ['Sessione','Giorno e ora','I tuoi dati'].map((l,i) => `<div class="${P.step===i+1?'on':''} ${P.step>i+1?'done':''}">${i+1} · ${l}</div>`).join('');
+  let body = '', foot = '';
+  if (P.step === 1){
+    body = `<div class="types">${Object.entries(TYPES).map(([k,t]) => `<button class="type ${P.type===k?'on':''}" data-action="pickType" data-k="${k}"><h3>${t.name}</h3><span class="price">${eur(PRICE)} · 60 minuti</span><p>${t.desc}</p></button>`).join('')}</div>`;
+  } else if (P.step === 2){
+    const today = sod(S.now);
+    const days = [...Array(14)].map((_,i) => { const d = addDays(today, i); return {d, n:freeSlots(d).length}; });
+    if (P.day == null){ const f = days.find(x => x.n); P.day = f ? f.d : today; }
+    const slots = freeSlots(P.day);
+    const am = slots.filter(s => new Date(s).getHours() < 14), pm = slots.filter(s => new Date(s).getHours() >= 14);
+    const grid = arr => `<div class="slots">${arr.map(s => `<button class="slot ${P.slot===s?'on':''}" data-action="pickSlot" data-s="${s}">${fTime(s)}</button>`).join('')}</div>`;
+    body = `<div class="days">${days.map(x => `<button class="day ${x.d===P.day?'on':''} ${x.n?'':'none'}" data-action="pickDay" data-d="${x.d}"><span class="wd">${fmt(x.d,{weekday:'short'})}</span><span class="dn">${new Date(x.d).getDate()}</span><span class="fr">${x.n ? x.n + (x.n===1?' libero':' liberi') : 'pieno'}</span></button>`).join('')}</div>
+      <h3>${WD[new Date(P.day).getDay()]} ${fmt(P.day,{day:'numeric',month:'long'})}</h3>
+      ${slots.length ? (am.length?`<span class="part">Mattina</span>${grid(am)}`:'') + (pm.length?`<span class="part">Pomeriggio</span>${grid(pm)}`:'') : '<div class="empty">Nessun orario libero in questo giorno.</div>'}`;
+    foot = note('I giocatori vedono solo gli orari liberi. Quelli in cui hai un impegno sul tuo Google Calendar, o che sono già stati richiesti, semplicemente non compaiono.');
+  } else {
+    body = `<div class="recap"><span>Sessione <b>${TYPES[P.type].name}</b></span><span>Quando <b>${fFull(P.slot)}</b></span><span>Prezzo <b>${eur(PRICE)}</b></span></div>
+    <div class="form2">
+      <label class="f">Nickname<input class="in" data-field="nick" value="${esc(P.nick)}" placeholder="Il tuo nome in gioco">${P.errors.nick?`<span class="err">${P.errors.nick}</span>`:''}</label>
+      <label class="f">Email<input class="in" type="email" data-field="email" value="${esc(P.email)}" placeholder="nome@esempio.it">${P.errors.email?`<span class="err">${P.errors.email}</span>`:''}</label>
+      <label class="f">Discord (facoltativo)<input class="in" data-field="discord" value="${esc(P.discord)}" placeholder="es. fede.flip"></label>
+      <label class="f">Rank attuale<select class="in" data-field="rank"><option value="">Scegli</option>${RANK_OPTS.map(r => `<option ${P.rank===r?'selected':''}>${r}</option>`).join('')}</select>${P.errors.rank?`<span class="err">${P.errors.rank}</span>`:''}</label>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span class="eyebrow">Playlist</span><div class="opts">${PLAYLISTS.map(p => `<button class="opt ${P.playlist===p?'on':''}" data-action="pickPlaylist" data-v="${p}">${p}</button>`).join('')}</div></div>
+    <label class="f">Cosa vuoi migliorare? (facoltativo)<textarea class="in" data-field="goal" placeholder="Es. rotazioni, aerial, gestione del boost…">${esc(P.goal)}</textarea></label>
+    <label class="check"><input type="checkbox" data-field="privacy" ${P.privacy?'checked':''}><span>Ho letto l'informativa privacy: i miei contatti servono solo per questa prenotazione.</span></label>
+    ${P.errors.privacy?`<span class="err">${P.errors.privacy}</span>`:''}
+    <button class="btn ghost sm" style="align-self:flex-start;justify-self:start" data-action="fillDemo">Compila con dati di esempio</button>`;
+  }
+  const err = P.errors.type || P.errors.slot;
+  return playerTabs() + `<div class="book">${head}<div class="progress">${prog}</div>
+    <section class="panel grid">${body}${err?`<span class="err">${err}</span>`:''}
+      <div class="row" style="justify-content:space-between;margin-top:4px">${P.step>1?'<button class="btn ghost" data-action="back">← Indietro</button>':'<span></span>'}${P.step<3?'<button class="btn" data-action="next">Avanti →</button>':'<button class="btn" data-action="submit">Invia la richiesta</button>'}</div>
+    </section>${foot}</div>`;
+}
+
+function emailBody(e){
+  const bk = byId(e.bookingId) || {}, sn = e.snap || {};
+  const det = `<div class="det"><span>Sessione</span><span>${esc(TYPES[bk.type]?.name)} · 60 min</span><span>Quando</span><span>${fFull(sn.start)}</span><span>Codice</span><span>${esc(bk.code)}</span></div>`;
+  const manage = `<button class="sec" data-action="manage" data-id="${bk.id}">Gestisci la prenotazione</button>`;
+  const again = label => `<button data-action="go" data-to="player">${label}</button>`;
+  const C = {
+    received:['Richiesta ricevuta', `<p>Ciao ${esc(e.nick)}, la tua richiesta è arrivata a Gladiator. Lo slot è tuo finché non risponde, al massimo fino a <b>${fFull(sn.expiresAt)}</b>.</p>${det}`, manage],
+    accepted:['Sessione confermata!', `<p>Ciao ${esc(e.nick)}, Gladiator ha accettato: ci vediamo in partita.</p>${det}<p style="font-size:14px">Il pagamento si concorda direttamente con Gladiator.</p>`, `<button data-action="fake" data-msg="Nella versione reale si apre Google Calendar con l'evento già compilato.">Aggiungi al calendario</button>${manage}`],
+    rejected:['Richiesta non accettata', `<p>Ciao ${esc(e.nick)}, questa volta Gladiator non può accettare la richiesta per ${fFull(sn.start)}:</p><div class="quote">${esc(sn.reason)}</div>`, again('Scegli un altro orario')],
+    proposed:['Ti va bene un altro orario?', `<p>Ciao ${esc(e.nick)}, Gladiator ti propone un orario diverso:</p><div class="det"><span>Prima</span><span class="strike">${fFull(sn.originalStart)}</span><span>Proposta</span><span><b>${fFull(sn.start)}</b></span></div>`, `<button data-action="manage" data-id="${bk.id}">Rispondi</button>`],
+    expired:['Richiesta scaduta', `<p>Ciao ${esc(e.nick)}, la richiesta per ${fFull(sn.start)} non è stata confermata in tempo e lo slot è tornato libero.</p>`, again('Prenota di nuovo')],
+    reminder:['Domani si gioca', `<p>Ciao ${esc(e.nick)}, ti ricordiamo la sessione di domani con Gladiator.</p>${det}`, manage],
+    cancelled_streamer:['Sessione annullata', `<p>Ciao ${esc(e.nick)}, Gladiator ha dovuto annullare la sessione di ${fFull(sn.start)}.</p><div class="quote">${esc(sn.reason)}</div>`, again('Scegli un altro orario')],
+    cancelled_player:['Sessione annullata', `<p>Ciao ${esc(e.nick)}, hai annullato la sessione di ${fFull(sn.start)}.</p>`, again('Prenota un\'altra sessione')],
+    declined:['Proposta rifiutata', `<p>Ciao ${esc(e.nick)}, hai rifiutato l'orario proposto. Puoi sceglierne un altro quando vuoi.</p>`, again('Scegli un altro orario')]
+  }[e.kind];
+  return `<article class="mail"><div class="mh"><span>Da: <b>Gladiator_RL</b> &lt;prenotazioni@esempio-demo.it&gt;</span><span>A: <b>${esc(e.to)}</b></span><span>Oggetto: <b>${esc(e.subject)}</b></span></div>
+    <div class="mb"><div class="brand"><img src="${AVATAR}" alt=""><span><b>Gladiator_RL</b><small>COACHING · BOOSTING</small></span></div>
+    <div class="ct"><h4>${C[0]}</h4>${C[1]}<div class="mbtns">${C[2]}</div><p class="fine">Email automatica della demo.</p></div></div></article>`;
+}
+
+function vInbox(){
+  const open = S.emails.find(e => e.id === S.openEmailId) || S.emails[0];
+  if (open){ open.read = true; S.openEmailId = open.id; }
+  return playerTabs() + (S.emails.length ? `<div class="inbox">
+    <div class="mlist">${S.emails.map(e => `<button class="mitem ${open&&e.id===open.id?'on':''} ${e.read?'':'unread'}" data-action="openEmail" data-id="${e.id}"><span class="to">A: ${esc(e.to)}</span><span class="sj">${esc(e.subject)}</span><span class="at">${fClock(e.at)}</span></button>`).join('')}</div>
+    <div class="grid">${open ? emailBody(open) : ''}${note('Queste email partono da sole, con il tuo nome. Tu non devi scrivere niente: basta accettare o rifiutare dal pannello.')}</div>
+  </div>` : '<div class="empty">Nessuna email: prenota una sessione per vederne arrivare una.</div>');
+}
+
+function vManage(){
+  const bk = byId(S.manageId);
+  if (!bk) return playerTabs() + '<div class="empty">Apri il link «Gestisci la prenotazione» da un\'email.</div>';
+  const canCancel = bk.status === 'confirmed' && bk.start - S.now >= S.settings.cancel*H;
+  let acts = '';
+  if (bk.status === 'proposed') acts = `<p>Nuovo orario proposto: <span class="dim" style="text-decoration:line-through">${fFull(bk.originalStart)}</span> → <b>${fFull(bk.start)}</b></p><div class="row"><button class="btn ok" data-action="acceptProposal" data-id="${bk.id}">Accetto il nuovo orario</button><button class="btn ghost" data-action="declineProposal" data-id="${bk.id}">Rifiuto</button></div>`;
+  else if (bk.status === 'pending') acts = `<p class="dim">Gladiator non ha ancora risposto.</p><div class="row"><button class="btn ghost" data-action="cancelPlayer" data-id="${bk.id}">Ritira la richiesta</button></div>`;
+  else if (canCancel) acts = `<div class="row"><button class="btn ghost" data-action="cancelPlayer" data-id="${bk.id}">Annulla la sessione</button></div><p class="dim" style="font-size:14px">Puoi annullare fino a ${S.settings.cancel} ore prima.</p>`;
+  else if (bk.status === 'confirmed' && bk.start > S.now) acts = `<p class="dim">Mancano meno di ${S.settings.cancel} ore: per annullare scrivi direttamente a Gladiator.</p>`;
+  return playerTabs() + `<div class="book"><div class="panel grid">
+    <span class="eyebrow">La tua prenotazione · ${esc(bk.code)}</span>
+    <div class="row"><h2 class="title">${esc(TYPES[bk.type].name)}</h2>${pill(shown(bk))}</div>
+    <p>${fFull(bk.start)} · ${esc(bk.nick)}</p>${bk.reason?`<p class="dim">Motivo: ${esc(bk.reason)}</p>`:''}
+    ${acts}
+  </div>${note('Il giocatore gestisce la prenotazione da questo link personale, senza account e senza password.')}</div>`;
+}
+
+function vLogin(){
+  return `<div class="login panel"><img src="${AVATAR}" alt=""><h2 class="title">Il tuo pannello</h2><p class="dim">Entri con il tuo account Google: lo stesso che usiamo per mettere le sessioni nel tuo calendario.</p><button class="gbtn" data-action="login"><span class="g"></span>Accedi con Google</button><p class="dim" style="font-size:13px">Nella demo l'accesso è simulato.</p></div>`;
+}
+
+function vAdmin(){
+  const A = S.admin;
+  const pend = S.bookings.filter(b => b.status === 'pending').length;
+  const tabs = [['richieste','Richieste',pend],['calendario','Calendario'],['disponibilita','Disponibilità'],['storico','Storico'],['impostazioni','Impostazioni']];
+  const body = {calendario:aCalendar, disponibilita:aAvail, storico:aHistory, impostazioni:aSettings}[A.tab] || aRequests;
+  return `<nav class="tabs g">${tabs.map(([k,l,c]) => `<button class="${A.tab===k?'on':''}" data-action="tab" data-t="${k}">${l}${c?`<span class="count">${c}</span>`:''}</button>`).join('')}</nav>
+  <div class="grid" style="gap:18px">${S.settings.gconnected?'':`<div class="banner"><span><b>Google Calendar scollegato.</b> Le prenotazioni funzionano, ma non vediamo i tuoi impegni e non creiamo eventi.</span><button class="btn sm" data-action="reconnect">Ricollega</button></div>`}${body()}</div>`;
+}
+
+function aRequests(){
+  const A = S.admin;
+  const decide = b => ['pending','proposed'].includes(b.status);
+  const upcoming = b => b.status === 'confirmed' && !isPast(b);
+  const archive = b => !decide(b) && !upcoming(b);
+  const toCash = S.bookings.filter(b => b.status === 'confirmed' && !b.paid).length * PRICE;
+  const F = {pending:decide, confirmed:upcoming, archive};
+  const list = S.bookings.filter(F[A.filter]).sort((a,b) => A.filter === 'archive' ? b.start - a.start : a.start - b.start);
+  const labels = [['pending','Da decidere'],['confirmed','In programma'],['archive','Passate e chiuse']];
+  return `<div class="kpis">
+      <div class="kpi r"><span class="v">${S.bookings.filter(decide).length}</span><span class="l">Da decidere</span></div>
+      <div class="kpi"><span class="v">${S.bookings.filter(upcoming).length}</span><span class="l">Sessioni in programma</span></div>
+      <div class="kpi"><span class="v">${eur(toCash)}</span><span class="l">Ancora da incassare</span></div>
+    </div>
+    <div class="filters">${labels.map(([k,l]) => `<button class="${A.filter===k?'on':''}" data-action="filter" data-f="${k}">${l} · ${S.bookings.filter(F[k]).length}</button>`).join('')}</div>
+    <div class="reqs">${list.length ? list.map(reqCard).join('') : `<div class="empty">${A.filter==='pending'?'Nessuna richiesta da decidere. Passa alla vista giocatore e prenotane una.':'Niente da mostrare.'}</div>`}</div>
+    ${A.filter==='pending' ? note('Se non rispondi entro 24 ore la richiesta scade da sola e il giocatore viene avvisato. Prova «+1 giorno» in alto.') : ''}`;
+}
+
+function reqCard(b){
+  const s = shown(b);
+  let acts = '';
+  if (s === 'pending') acts = `<span class="expire">Scade ${rel(b.expiresAt)}</span><button class="btn ok sm" data-action="accept" data-id="${b.id}">Accetta</button><button class="btn ghost sm" data-action="proposeOpen" data-id="${b.id}">Altro orario</button><button class="btn ghost sm" data-action="rejectOpen" data-id="${b.id}">Rifiuta</button>`;
+  else if (s === 'proposed') acts = `<span class="expire">Aspettiamo la risposta del giocatore</span>`;
+  else if (s === 'confirmed') acts = `<button class="btn ${b.paid?'ok':'ghost'} sm" data-action="togglePaid" data-id="${b.id}">${b.paid?'✓ Pagata':'Segna pagata'}</button><button class="btn ghost sm" data-action="cancelOpen" data-id="${b.id}">Annulla</button>`;
+  else if (s === 'done') acts = `<button class="btn ${b.paid?'ok':'ghost'} sm" data-action="togglePaid" data-id="${b.id}">${b.paid?'✓ Pagata':'Segna pagata'}</button><button class="btn ghost sm" data-action="markNoShow" data-id="${b.id}">Non si è presentato</button>`;
+  return `<article class="req ${s}">
+    <div class="when"><span class="d">${fmt(b.start,{weekday:'short',day:'numeric',month:'short'})}</span><span class="t">${fTime(b.start)}</span></div>
+    <div class="body">
+      <div class="top"><span class="nick">${esc(b.nick)}</span>${pill(s)}</div>
+      <div class="meta"><span>${TYPES[b.type].name}</span><span>${esc(b.rank)}</span><span>${esc(b.playlist)}</span><span>${esc(b.email)}</span>${b.discord?`<span>Discord: ${esc(b.discord)}</span>`:''}</div>
+      ${b.goal?`<p class="goal">“${esc(b.goal)}”</p>`:''}
+      ${s==='proposed'?`<p class="dim" style="font-size:13.5px">Aveva chiesto ${fDay(b.originalStart)} alle ${fTime(b.originalStart)}</p>`:''}
+      ${b.reason?`<p class="dim" style="font-size:13.5px">Motivo: ${esc(b.reason)}</p>`:''}
+    </div>
+    ${acts?`<div class="acts">${acts}</div>`:''}
+  </article>`;
+}
+
+function aCalendar(){
+  const start = addDays(sod(S.now), S.admin.week*7);
+  const H0 = 9, H1 = 22, RH = 48;
+  const days = [...Array(7)].map((_,i) => addDays(start, i));
+  const pos = (s,e) => { const a = new Date(s).getHours(), z = Math.min(new Date(e).getHours() || 24, H1); return `top:${(a-H0)*RH}px;height:${(z-a)*RH-3}px`; };
+  const cols = days.map(day => {
+    const end = addDays(day, 1), bands = bandsFor(day);
+    let html = bands.length ? bands.map(([s,e]) => `<div class="cal-band" style="top:${(s-H0)*RH}px;height:${(e-s)*RH}px"></div>`).join('') : '<div class="cal-closed"></div>';
+    if (S.settings.gconnected) S.gcal.filter(g => g.start >= day && g.start < end).forEach(g => html += `<div class="ev g" style="${pos(g.start,g.end)}"><b>${esc(g.title)}</b><span>${fTime(g.start)}–${fTime(g.end)}</span></div>`);
+    S.bookings.filter(b => b.start >= day && b.start < end && ACTIVE.includes(b.status)).forEach(b => {
+      html += b.status === 'confirmed' ? `<div class="ev c" style="${pos(b.start,b.start+H)}"><b>${esc(b.nick)}</b><span>${TYPES[b.type].name}</span></div>` : `<div class="ev p" style="${pos(b.start,b.start+H)}"><b>${esc(b.nick)}</b><span>da decidere</span></div>`;
+    });
+    if (S.now >= day && S.now < end){ const hh = new Date(S.now).getHours() + new Date(S.now).getMinutes()/60; if (hh >= H0 && hh <= H1) html += `<div class="nowline" style="top:${(hh-H0)*RH}px"></div>`; }
+    return `<div class="cal-col" style="height:${(H1-H0)*RH}px">${html}</div>`;
+  }).join('');
+  return `<div class="row" style="justify-content:space-between"><h2 class="title">Dal ${fmt(start,{day:'numeric',month:'long'})}</h2><div class="row"><button class="btn ghost sm" data-action="week" data-d="-1">←</button><button class="btn ghost sm" data-action="week" data-d="0">Oggi</button><button class="btn ghost sm" data-action="week" data-d="1">→</button></div></div>
+    <div class="legend"><span><i style="border-color:#8c838a;background:#2a252c"></i>I tuoi impegni</span><span><i style="border-color:var(--red);background:rgba(243,44,44,.28)"></i>Sessione confermata</span><span><i style="border-color:var(--warn);background:rgba(245,177,61,.1)"></i>Da decidere</span><span><i style="border-color:rgba(207,210,216,.35);background:rgba(207,210,216,.05)"></i>Quando sei prenotabile</span></div>
+    <div class="cal"><div class="cal-in"><div class="cal-h"></div>${days.map(x => `<div class="cal-h ${sod(S.now)===x?'today':''}">${fmt(x,{weekday:'short'})}<b>${new Date(x).getDate()}</b></div>`).join('')}
+    <div class="cal-times">${[...Array(H1-H0)].map((_,i) => `<div>${H0+i}:00</div>`).join('')}</div>${cols}</div></div>
+    ${note('Questo è il tuo Google Calendar. Le sessioni che accetti compaiono da sole. I tuoi impegni (live, scrim, visite) bloccano quegli orari: i giocatori non li vedono, e non sanno di cosa si tratta.')}`;
+}
+
+function aAvail(){
+  const hrs = [...Array(16)].map((_,i) => i + 8);
+  const sel = (d, i, k, v) => `<select data-band="${d}" data-i="${i}" data-k="${k}" aria-label="${k===0?'Dalle':'Alle'}">${hrs.map(h => `<option value="${h}" ${v===h?'selected':''}>${h}:00</option>`).join('')}</select>`;
+  return `<h2 class="title">Quando sei prenotabile</h2>
+  <div class="panel">${[1,2,3,4,5,6,0].map(d => { const bands = S.availability[d]; const n = bands.reduce((s,[a,b]) => s + Math.max(0,b-a), 0); return `<div class="avday"><span class="dname">${WD[d]}<small>${n ? n + (n===1?' sessione':' sessioni') : 'chiuso'}</small></span>
+    <div class="bands">${bands.map(([s,e],i) => `<span class="band">${sel(d,i,0,s)}–${sel(d,i,1,e)}<button class="x" data-action="bandDel" data-d="${d}" data-i="${i}" aria-label="Togli fascia">×</button></span>`).join('')}<button class="addband" data-action="bandAdd" data-d="${d}">+ fascia</button></div></div>`; }).join('')}</div>
+  <div class="panel grid" style="gap:12px">
+    <h3>Giorni chiusi</h3>
+    ${S.exceptions.length ? S.exceptions.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e => `<div class="row" style="justify-content:space-between"><span><b>${fmt(new Date(e.date+'T12:00').getTime(),{weekday:'long',day:'numeric',month:'long'})}</b> <span class="dim">· ${esc(e.note||'Chiuso')}</span></span><button class="btn ghost sm" data-action="exDel" data-date="${e.date}">Togli</button></div>`).join('') : '<p class="dim">Nessuno.</p>'}
+    <div class="row"><input class="in" type="date" id="exDate" style="width:auto" min="${ymd(S.now)}"><input class="in" id="exNote" placeholder="Motivo, es. Torneo LAN" style="width:auto;flex:1;min-width:150px"><button class="btn sm" data-action="exAdd">Aggiungi</button></div>
+  </div>
+  ${note('Puoi avere più fasce nello stesso giorno, per esempio la mattina dalle 11 alle 13 e il pomeriggio dalle 15 alle 18. Ogni ora dentro una fascia diventa una sessione prenotabile. Le modifiche valgono subito: prova a cambiarle e guarda la vista giocatore.')}`;
+}
+
+function aHistory(){
+  const map = {};
+  S.bookings.forEach(b => {
+    const m = map[b.email] ||= {nick:b.nick, email:b.email, rank:b.rank, done:0, noshow:0, unpaid:0, last:0};
+    const s = shown(b);
+    if (s === 'done') m.done++;
+    if (s === 'noshow') m.noshow++;
+    if (['confirmed','done'].includes(s) && !b.paid) m.unpaid++;
+    if (b.start > m.last){ m.last = b.start; m.nick = b.nick; m.rank = b.rank; }
+  });
+  const rows = Object.values(map).sort((a,b) => b.last - a.last);
+  return `<h2 class="title">Storico</h2>
+  <div class="panel tw" style="padding:6px 10px"><table class="t"><thead><tr><th>Giocatore</th><th>Rank</th><th>Sessioni fatte</th><th>Non presentato</th><th>Da pagare</th><th>Ultima</th></tr></thead><tbody>
+  ${rows.map(r => `<tr><td><b>${esc(r.nick)}</b><br><span class="dim" style="font-size:12.5px">${esc(r.email)}</span></td><td>${esc(r.rank)}</td><td class="num">${r.done}</td><td class="num" style="${r.noshow?'color:var(--red-2)':''}">${r.noshow}</td><td class="num" style="${r.unpaid?'color:var(--warn)':''}">${r.unpaid ? eur(r.unpaid*PRICE) : '—'}</td><td class="dim">${fDay(r.last)}</td></tr>`).join('')}
+  </tbody></table></div>
+  ${note('Qui vedi chi è tornato, chi non si è presentato e chi deve ancora pagare. I contatti dei giocatori si cancellano da soli dopo 12 mesi.')}`;
+}
+
+function aSettings(){
+  const st = S.settings;
+  const num = (k, label, help, unit) => `<div class="setrow"><div><b>${label}</b><p>${help}</p></div><label class="row" style="gap:8px"><input class="in" type="number" min="0" data-set="${k}" value="${st[k]}" style="width:80px"><span class="dim">${unit}</span></label></div>`;
+  return `<h2 class="title">Impostazioni</h2>
+  <div class="panel">
+    ${num('notice','Preavviso minimo','Non si può prenotare una sessione che inizia prima di così.','ore')}
+    ${num('horizon','Prenotabile fino a','Quanto in avanti i giocatori vedono gli orari.','giorni')}
+    ${num('ttl','Tempo per rispondere','Dopo questo tempo una richiesta scade da sola.','ore')}
+    ${num('cancel','Annullamento','Il giocatore può annullare fino a questo anticipo.','ore')}
+  </div>
+  <div class="panel"><div class="setrow"><div><b>Google Calendar</b><p>${st.gconnected?'Collegato a gladiator@gmail.com (simulato).':'Non collegato.'}</p></div>${st.gconnected?'<button class="btn ghost sm" data-action="disconnect">Scollega</button>':'<button class="btn sm" data-action="reconnect">Collega</button>'}</div></div>`;
+}
+
+function modal(){
+  const M = S.modal; if (!M) return '';
+  const b = M.id ? byId(M.id) : null;
+  if (M.kind === 'consent') return `<div class="overlay" data-action="closeModalBg"><div class="consent" role="dialog" aria-label="Consenso Google simulato">
+    <span style="font-size:12px;color:#5f6368">Consenso Google · simulato</span><h4>Prenotazioni Gladiator_RL vuole accedere al tuo Google Calendar</h4>
+    <ul><li>Creare, modificare ed eliminare eventi sui tuoi calendari</li><li>Vedere quando sei occupato</li></ul>
+    <p style="font-size:13px;color:#5f6368;margin:0">Non può leggere il contenuto dei tuoi impegni.</p>
+    <div class="cbtns"><button style="background:#eceff3;color:#1f2533" data-action="closeModal">Annulla</button><button style="background:#1a73e8;color:#fff" data-action="consentOk">Consenti</button></div></div></div>`;
+  let inner = '';
+  if (M.kind === 'reject') inner = `<span class="eyebrow">Rifiuta ${esc(b.nick)}</span><h2 class="title">Perché?</h2>
+    <div class="reasons">${REASONS.map((r,i) => `<label><input type="radio" name="reason" data-mr="${i}" ${M.r===i?'checked':''}> ${esc(r)}</label>`).join('')}<label><input type="radio" name="reason" data-mr="x" ${M.r==='x'?'checked':''}> Scrivo io</label></div>
+    ${M.r==='x'?`<textarea class="in" id="reasonText" placeholder="Il motivo che leggerà ${esc(b.nick)}">${esc(M.text||'')}</textarea>`:''}
+    <p class="dim" style="font-size:14px">${esc(b.nick)} riceve un'email con il motivo e il link per scegliere un altro orario.</p>
+    <div class="row" style="justify-content:flex-end"><button class="btn ghost" data-action="closeModal">Annulla</button><button class="btn" data-action="rejectConfirm">Rifiuta</button></div>`;
+  else if (M.kind === 'propose') inner = `<span class="eyebrow">Proponi a ${esc(b.nick)}</span><h2 class="title">Un altro orario</h2>
+    <p class="dim">Aveva chiesto ${fFull(b.start)}.</p>
+    <div class="slots">${nextFree(12, b.id).map(s => `<button class="slot ${M.slot===s?'on':''}" data-action="pickPropose" data-s="${s}" style="font-size:15px">${fTime(s)}<br><span style="font-size:11px;font-weight:400;opacity:.75">${fDay(s)}</span></button>`).join('')}</div>
+    <div class="row" style="justify-content:flex-end"><button class="btn ghost" data-action="closeModal">Annulla</button><button class="btn" data-action="proposeConfirm" ${M.slot?'':'disabled'}>Invia la proposta</button></div>`;
+  else if (M.kind === 'conflict'){ const g = gcalAt(b.start); inner = `<span class="eyebrow">Attenzione</span><h2 class="title">Sei già occupato</h2>
+    <p>Sul tuo calendario c'è <b>${esc(g.title)}</b> (${fTime(g.start)}–${fTime(g.end)}) in quell'orario.</p>
+    <div class="row" style="justify-content:flex-end"><button class="btn ghost" data-action="proposeOpen" data-id="${b.id}">Proponi altro orario</button><button class="btn ok" data-action="acceptForce" data-id="${b.id}">Accetta lo stesso</button></div>`; }
+  else if (M.kind === 'cancel') inner = `<span class="eyebrow">Annulla ${esc(b.nick)}</span><h2 class="title">Sicuro?</h2>
+    <p class="dim">${fFull(b.start)}. L'evento sparisce dal tuo calendario e ${esc(b.nick)} riceve un'email.</p>
+    <textarea class="in" id="cancelText">Mi è uscito un imprevisto, scusami! Scegli pure un altro orario.</textarea>
+    <div class="row" style="justify-content:flex-end"><button class="btn ghost" data-action="closeModal">Indietro</button><button class="btn" data-action="cancelConfirm">Annulla la sessione</button></div>`;
+  return `<div class="overlay" data-action="closeModalBg"><div class="modal panel" role="dialog">${inner}</div></div>`;
+}
+
+function validStep(n){
+  const P = S.player, e = {};
+  if (n === 1 && !P.type) e.type = 'Scegli coaching o boosting.';
+  if (n === 2 && !P.slot) e.slot = 'Scegli un orario.';
+  if (n === 3){
+    if (!P.nick.trim()) e.nick = 'Inserisci il tuo nickname.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(P.email.trim())) e.email = 'Serve un\'email valida per avvisarti.';
+    if (!P.rank) e.rank = 'Scegli il tuo rank.';
+    if (!P.privacy) e.privacy = 'Spunta l\'informativa per continuare.';
+  }
+  P.errors = e;
+  return !Object.keys(e).length;
+}
+
+function doAccept(b){
+  b.status = 'confirmed'; b.gcalSynced = S.settings.gconnected;
+  addEmail('accepted', b);
+  toast(`<b>${esc(b.nick)}</b> confermato per ${fDay(b.start)} alle ${fTime(b.start)}.<br>${b.gcalSynced ? 'Aggiunto al tuo Google Calendar, email inviata.' : 'Email inviata. Calendario scollegato: lo aggiungiamo quando ricolleghi.'}`);
+}
+
+const ACT = {
+  go(d){ S.view = d.to; if (d.to === 'player' && S.player.step === 4) S.player = freshPlayer(); render(); },
+  reset(){ try { localStorage.removeItem(STORE); } catch(e){} seed(); render(); toast('Demo ricominciata da capo.'); },
+  tick(d){ advance(Number(d.h) * H); keep(); },
+  pickType(d){ S.player.type = d.k; S.player.errors = {}; keep(); },
+  pickDay(d){ S.player.day = Number(d.d); S.player.slot = null; keep(); },
+  pickSlot(d){ S.player.slot = Number(d.s); S.player.errors = {}; keep(); },
+  pickPlaylist(d){ S.player.playlist = d.v; keep(); },
+  next(){ if (validStep(S.player.step)) S.player.step++; render(); },
+  back(){ S.player.step--; S.player.errors = {}; render(); },
+  fillDemo(){ Object.assign(S.player, {nick:'MusTy_Dribble', email:'dribble.musty@example.com', discord:'musty.dribble', rank:S.player.rank || 'Champion II', playlist:S.player.playlist || '2v2', goal:S.player.goal || 'Imparare il dribbling e i flick.', privacy:true, errors:{}}); keep(); },
+  submit(){
+    const P = S.player;
+    if (!validStep(3)) return keep();
+    if (!isFree(P.slot)){ P.step = 2; P.slot = null; P.errors = {slot:'Questo orario è appena stato preso: scegline un altro.'}; return render(); }
+    const id = 'b' + (++S.seq);
+    const b = {id, code:'GLD-' + S.seq, status:'pending', paid:false, type:P.type, rank:P.rank, playlist:P.playlist, goal:P.goal.trim(), start:P.slot, nick:P.nick.trim(), email:P.email.trim(), discord:P.discord.trim(), createdAt:S.now, gcalSynced:false, reminderSent:false, reason:'', originalStart:null};
+    b.expiresAt = expiryFor(S.now, b.start);
+    S.bookings.push(b); S.lastBookingId = id;
+    addEmail('received', b);
+    P.step = 4; render();
+  },
+  newBooking(){ S.player = freshPlayer(); render(); },
+  openLastEmail(){ const e = S.emails.find(x => x.bookingId === S.lastBookingId); S.openEmailId = e && e.id; S.view = 'inbox'; render(); },
+  goAdminPending(){ S.view = 'streamer'; S.admin.tab = 'richieste'; S.admin.filter = 'pending'; render(); },
+  openEmail(d){ S.openEmailId = d.id; keep(); },
+  fake(d){ toast(esc(d.msg)); },
+  manage(d){ S.manageId = d.id; S.view = 'manage'; render(); },
+  acceptProposal(d){ const b = byId(d.id); b.status = 'confirmed'; b.gcalSynced = S.settings.gconnected; addEmail('accepted', b); toast('Orario accettato: la sessione è confermata e compare nel calendario di Gladiator.'); render(); },
+  declineProposal(d){ const b = byId(d.id); b.status = 'expired'; b.reason = 'Il giocatore ha rifiutato l\'orario proposto'; addEmail('declined', b); render(); },
+  cancelPlayer(d){ const b = byId(d.id); b.status = 'cancelled_player'; b.gcalSynced = false; addEmail('cancelled_player', b); toast('Annullata: lo slot è di nuovo libero e Gladiator viene avvisato.'); render(); },
+  login(){ S.admin.logged = true; render(); },
+  tab(d){ S.admin.tab = d.t; render(); },
+  filter(d){ S.admin.filter = d.f; keep(); },
+  week(d){ S.admin.week = Number(d.d) === 0 ? 0 : S.admin.week + Number(d.d); keep(); },
+  accept(d){ const b = byId(d.id); if (S.settings.gconnected && gcalAt(b.start)){ S.modal = {kind:'conflict', id:b.id}; return keep(); } doAccept(b); keep(); },
+  acceptForce(d){ S.modal = null; doAccept(byId(d.id)); keep(); },
+  rejectOpen(d){ S.modal = {kind:'reject', id:d.id, r:0, text:''}; keep(); },
+  rejectConfirm(){
+    const M = S.modal, b = byId(M.id);
+    const reason = M.r === 'x' ? (document.getElementById('reasonText')?.value || '').trim() : REASONS[M.r];
+    if (!reason){ toast('Scrivi il motivo per il giocatore.'); return; }
+    b.status = 'rejected'; b.reason = reason; addEmail('rejected', b); S.modal = null;
+    toast(`Richiesta di <b>${esc(b.nick)}</b> rifiutata. Gli abbiamo scritto il motivo.`); keep();
+  },
+  proposeOpen(d){ S.modal = {kind:'propose', id:d.id, slot:null}; keep(); },
+  pickPropose(d){ S.modal.slot = Number(d.s); keep(); },
+  proposeConfirm(){
+    const M = S.modal, b = byId(M.id);
+    b.originalStart = b.start; b.start = M.slot; b.status = 'proposed'; b.expiresAt = expiryFor(S.now, b.start);
+    addEmail('proposed', b); S.modal = null;
+    toast(`Proposta inviata a <b>${esc(b.nick)}</b>. Puoi rispondere dalla vista giocatore, nelle sue email.`); keep();
+  },
+  cancelOpen(d){ S.modal = {kind:'cancel', id:d.id}; keep(); },
+  cancelConfirm(){ const b = byId(S.modal.id); b.reason = (document.getElementById('cancelText').value || '').trim() || 'Imprevisto'; b.status = 'cancelled_streamer'; b.gcalSynced = false; addEmail('cancelled_streamer', b); S.modal = null; toast(`Sessione annullata, ${esc(b.nick)} è stato avvisato.`); keep(); },
+  togglePaid(d){ const b = byId(d.id); b.paid = !b.paid; keep(); },
+  markNoShow(d){ byId(d.id).status = 'noshow'; keep(); },
+  closeModal(){ S.modal = null; keep(); },
+  closeModalBg(d, el, ev){ if (ev.target === el){ S.modal = null; keep(); } },
+  bandAdd(d){ const arr = S.availability[d.d]; const last = arr.length ? Math.max(...arr.map(x => x[1])) : 14; const s = Math.min(last + 1, 21); arr.push([s, Math.min(s + 3, 23)]); keep(); },
+  bandDel(d){ S.availability[d.d].splice(Number(d.i), 1); keep(); },
+  exAdd(){ const date = document.getElementById('exDate').value; if (!date){ toast('Scegli una data.'); return; } if (!S.exceptions.some(e => e.date === date)) S.exceptions.push({date, note:document.getElementById('exNote').value.trim()}); keep(); },
+  exDel(d){ S.exceptions = S.exceptions.filter(e => e.date !== d.date); keep(); },
+  disconnect(){ S.settings.gconnected = false; keep(); },
+  reconnect(){ S.modal = {kind:'consent'}; keep(); },
+  consentOk(){ S.settings.gconnected = true; S.modal = null; S.bookings.forEach(b => { if (b.status === 'confirmed') b.gcalSynced = true; }); keep(); toast('Google Calendar collegato.'); }
+};
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-action]');
+  if (!el || el.disabled) return;
+  const fn = ACT[el.dataset.action];
+  if (fn){ if (el.tagName === 'BUTTON') ev.preventDefault(); fn(el.dataset, el, ev); }
+});
+document.addEventListener('input', ev => {
+  const t = ev.target;
+  if (t.dataset.field && t.type !== 'checkbox' && t.tagName !== 'SELECT'){ S.player[t.dataset.field] = t.value; save(); }
+  if (t.id === 'reasonText' && S.modal) S.modal.text = t.value;
+});
+document.addEventListener('change', ev => {
+  const t = ev.target;
+  if (t.dataset.field){ S.player[t.dataset.field] = t.type === 'checkbox' ? t.checked : t.value; delete S.player.errors[t.dataset.field]; if (t.type === 'checkbox' || t.tagName === 'SELECT') keep(); else save(); }
+  if (t.dataset.mr !== undefined && S.modal){ S.modal.r = t.dataset.mr === 'x' ? 'x' : Number(t.dataset.mr); keep(); }
+  if (t.dataset.band !== undefined){
+    const band = S.availability[t.dataset.band][Number(t.dataset.i)];
+    band[Number(t.dataset.k)] = Number(t.value);
+    if (band[1] <= band[0]) band[1] = Math.min(band[0] + 1, 24);
+    keep();
+  }
+  if (t.dataset.set){ S.settings[t.dataset.set] = Math.max(0, Number(t.value) || 0); keep(); }
+});
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && S.modal){ S.modal = null; keep(); } });
+
+load();
+render();
+</script>
+</body>
+</html>
