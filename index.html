@@ -116,8 +116,9 @@ textarea.in{resize:vertical;min-height:76px}
 .foot{margin-top:46px;font-size:12px;color:var(--mute);text-align:center}
 
 /* PLAYER */
-.tabs{display:flex;gap:2px;margin-bottom:22px;border-bottom:1px solid var(--line);overflow-x:auto}
-.tabs button{background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:10px 16px;font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.tabs{display:flex;gap:2px;margin-bottom:22px;box-shadow:inset 0 -1px 0 var(--line);overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 16px;font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
 .tabs button.on{color:var(--text);border-color:var(--silver)}
 .tabs.g button.on{border-color:var(--red)}
 .tabs .count{font-size:10px;background:var(--red);color:#fff;padding:1px 6px;margin-left:6px}
@@ -561,7 +562,7 @@ function vManage(){
 }
 
 function vLogin(){
-  return `<div class="login panel"><img src="${AVATAR}" alt=""><h2 class="title">Il tuo pannello</h2><p class="dim">Entri con il tuo account Google: lo stesso che usiamo per mettere le sessioni nel tuo calendario.</p><button class="gbtn" data-action="login"><span class="g"></span>Accedi con Google</button><p class="dim" style="font-size:13px">Nella demo l'accesso è simulato.</p></div>`;
+  return `<div class="login panel"><img src="${AVATAR}" alt=""><h2 class="title">Il tuo pannello</h2><p class="dim">Entri con il tuo account Google: lo stesso che usiamo per mettere le sessioni nel tuo calendario.</p><button class="gbtn" data-action="login"><span class="g"></span>Accedi con Google (simulato)</button><p class="dim" style="font-size:13px">Nella demo l'accesso è simulato.</p></div>`;
 }
 
 function vAdmin(){
